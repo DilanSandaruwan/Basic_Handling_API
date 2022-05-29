@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import com.practice.basichandlingapi.adapters.PhotoAdapter
 import com.practice.basichandlingapi.api.RetrofitAPIHandler
+import com.practice.basichandlingapi.database.AppDatabase
 import com.practice.basichandlingapi.databinding.FragmentFirstBinding
 import com.practice.basichandlingapi.models.Photo
 import retrofit2.Call
@@ -49,6 +50,14 @@ class FirstFragment : Fragment() {
         photos.enqueue(object : Callback<List<Photo>>{
             override fun onResponse(call: Call<List<Photo>>, response: Response<List<Photo>>) {
                 val photosBody = response.body()
+
+                //save data in the database
+                val db = AppDatabase.getDatabase(view.context)
+                photosBody?.forEach {
+                    db.photoDao().insertPhoto(it)
+                }
+
+                //pass the data to the recyclerView via adapter
                 val adapter = PhotoAdapter(photosBody!!,this,{position->onListItemClick(position)})
                 binding.recyclerView.adapter = adapter
 
